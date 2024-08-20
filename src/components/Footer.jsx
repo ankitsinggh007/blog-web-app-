@@ -1,15 +1,12 @@
-// import React from "react";
-// import { Layout } from "antd";
+// src/components/Footer.jsx
+import React from 'react'
 
-// const { Footer } = Layout;
+const Footer = () => {
+  return (
+    <footer className="mt-8 bg-gray-100 p-4 text-center">
+      <p className="text-gray-600">© 2024 Your Blog. All rights reserved.</p>
+    </footer>
+  )
+}
 
-// const MyFooter = () => {
-//   return (
-//     <Footer style={{ textAlign: "center" }}>
-//       My Blog ©2023 <br />
-//       {/* Add social media links here */}
-//     </Footer>
-//   );
-// };
-
-// export default MyFooter;
+export default Footer
