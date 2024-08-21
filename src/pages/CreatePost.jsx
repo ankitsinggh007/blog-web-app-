@@ -1,11 +1,14 @@
 // src/pages/CreatePost.jsx
 import React from 'react'
 import { Form } from '../components'
+import { useDispatch } from 'react-redux'
 
 const CreatePost = () => {
+  const dispatch = useDispatch()
   const handleCreatePost = (values) => {
     // Function to handle post creation
-    console.log('Create post with values:', values)
+    // dispatch(values, token);
+    console.log(values)
   }
 
   return <Form onSubmit={handleCreatePost} />

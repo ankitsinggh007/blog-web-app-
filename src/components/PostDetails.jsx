@@ -1,6 +1,7 @@
-// src/pages/PostDetails.jsx
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
+import { useDispatch, useSelector } from 'react-redux'
+import { fetchPostById } from '../features/posts/postSlice'
 import {
   FaThumbsUp,
   FaComment,
@@ -13,40 +14,34 @@ import {
 const PostDetails = () => {
   const { id } = useParams()
   const navigate = useNavigate()
+  const dispatch = useDispatch()
 
-  // Example post data
-  const post = {
-    id: 1,
-    title: 'Sample Post Title',
-    content: `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque nisl eros, pulvinar facilisis justo mollis, auctor consequat urna. Morbi a bibendum metus. Donec scelerisque sollicitudin enim eu venenatis. Duis tincidunt laoreet ex, in pretium orci vestibulum eget. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos.`,
-    likes: 120,
-    comments: 45,
-    impressions: 250,
-    ownerId: 1 // ID of the post owner
-  }
-
+  // Fetch post data from Redux store
+  const post = useSelector((state) => state.posts.currentPost)
   const loggedInUserId = 1 // Example logged-in user ID for demo
-
   const [dropdownOpen, setDropdownOpen] = useState(false)
+
+  useEffect(() => {
+    dispatch(fetchPostById(id))
+  }, [dispatch, id])
 
   const handleDropdownToggle = () => {
     setDropdownOpen(!dropdownOpen)
   }
 
   const handleDelete = () => {
-    // Function to delete the post
-    console.log('Delete post with ID:', post.id)
+    console.log('Delete post with ID:', post?.id)
+    // Add your delete logic here (API call)
   }
 
   const handleUpdate = () => {
-    // Redirect to the update post page with the current post ID
-    navigate(`/update-post/${post.id}`, { state: { post } })
+    navigate(`/update-post/${post?.id}`, { state: { post } })
   }
 
   return (
     <div className="relative mx-auto max-w-4xl p-6">
       {/* Dropdown Button */}
-      {loggedInUserId === post.ownerId && (
+      {loggedInUserId === post?.ownerId && (
         <div className="relative mb-6">
           <button
             onClick={handleDropdownToggle}
@@ -75,41 +70,48 @@ const PostDetails = () => {
         </div>
       )}
 
-      <h1 className="mb-4 text-4xl font-bold md:text-5xl lg:text-6xl">
-        {post.title}
-      </h1>
-      <p className="text-lg leading-relaxed md:text-xl lg:text-[1.45rem]">
-        {post.content}
-      </p>
+      {/* Show post details */}
+      {post ? (
+        <>
+          <h1 className="mb-4 text-4xl font-bold md:text-5xl lg:text-6xl">
+            {post.title}
+          </h1>
+          <p className="text-lg leading-relaxed md:text-xl lg:text-[1.45rem]">
+            {post.content}
+          </p>
 
-      <div className="mt-6 flex flex-col text-xl sm:flex-row sm:space-x-8">
-        {/* Like */}
-        <div className="group relative mb-4 flex items-center space-x-2 sm:mb-0">
-          <FaThumbsUp className="cursor-pointer text-gray-600 hover:text-blue-600" />
-          <span>{post.likes}</span>
-          <span className="absolute bottom-full mb-2 hidden rounded bg-gray-800 px-2 py-1 text-xs text-white group-hover:block">
-            Like
-          </span>
-        </div>
+          <div className="mt-6 flex flex-col text-xl sm:flex-row sm:space-x-8">
+            {/* Like */}
+            <div className="group relative mb-4 flex items-center space-x-2 sm:mb-0">
+              <FaThumbsUp className="cursor-pointer text-gray-600 hover:text-blue-600" />
+              <span>{post.likes}</span>
+              <span className="absolute bottom-full mb-2 hidden rounded bg-gray-800 px-2 py-1 text-xs text-white group-hover:block">
+                Like
+              </span>
+            </div>
 
-        {/* Comment */}
-        <div className="group relative mb-4 flex items-center space-x-2 sm:mb-0">
-          <FaComment className="cursor-pointer text-gray-600 hover:text-green-600" />
-          <span>{post.comments}</span>
-          <span className="absolute bottom-full mb-2 hidden rounded bg-gray-800 px-2 py-1 text-xs text-white group-hover:block">
-            Comment
-          </span>
-        </div>
+            {/* Comment */}
+            <div className="group relative mb-4 flex items-center space-x-2 sm:mb-0">
+              <FaComment className="cursor-pointer text-gray-600 hover:text-green-600" />
+              <span>{post.comments}</span>
+              <span className="absolute bottom-full mb-2 hidden rounded bg-gray-800 px-2 py-1 text-xs text-white group-hover:block">
+                Comment
+              </span>
+            </div>
 
-        {/* Impression */}
-        <div className="group relative flex items-center space-x-2">
-          <FaEye className="cursor-pointer text-gray-600 hover:text-purple-600" />
-          <span>{post.impressions}</span>
-          <span className="absolute bottom-full mb-2 hidden rounded bg-gray-800 px-2 py-1 text-xs text-white group-hover:block">
-            Impression
-          </span>
-        </div>
-      </div>
+            {/* Impression */}
+            <div className="group relative flex items-center space-x-2">
+              <FaEye className="cursor-pointer text-gray-600 hover:text-purple-600" />
+              <span>{post.impressions}</span>
+              <span className="absolute bottom-full mb-2 hidden rounded bg-gray-800 px-2 py-1 text-xs text-white group-hover:block">
+                Impression
+              </span>
+            </div>
+          </div>
+        </>
+      ) : (
+        <p>Loading post details...</p>
+      )}
     </div>
   )
 }

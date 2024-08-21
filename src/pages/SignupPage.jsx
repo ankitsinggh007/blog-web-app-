@@ -1,10 +1,13 @@
-// src/pages/Signup.jsx
 import React from 'react'
 import { Formik, Form, Field, ErrorMessage } from 'formik'
 import * as Yup from 'yup'
 import { Link } from 'react-router-dom'
+import { useDispatch } from 'react-redux'
+import { registerUser } from '../features/users/userSlice'
 
 const SignupPage = () => {
+  const dispatch = useDispatch()
+
   const validationSchema = Yup.object({
     name: Yup.string().required('Name is required'),
     username: Yup.string().required('Username is required'),
@@ -16,6 +19,22 @@ const SignupPage = () => {
       .required('Password is required')
   })
 
+  const handleSignup = (values, { setSubmitting }) => {
+    dispatch(registerUser(values))
+      .unwrap()
+      .then((response) => {
+        // Handle success (e.g., redirect to login or home)
+        console.log('Registration successful:', response)
+      })
+      .catch((error) => {
+        // Handle error (e.g., display error message)
+        console.log('Registration failed:', error)
+      })
+      .finally(() => {
+        setSubmitting(false)
+      })
+  }
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-100 px-4 sm:px-6 lg:px-8">
       <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-lg sm:p-8 md:p-10 lg:p-12">
@@ -25,10 +44,7 @@ const SignupPage = () => {
         <Formik
           initialValues={{ name: '', username: '', email: '', password: '' }}
           validationSchema={validationSchema}
-          onSubmit={(values, { setSubmitting }) => {
-            console.log(values)
-            setSubmitting(false)
-          }}
+          onSubmit={handleSignup}
         >
           {({ isSubmitting }) => (
             <Form>
