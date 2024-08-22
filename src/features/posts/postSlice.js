@@ -1,93 +1,123 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
+import { createSlice } from '@reduxjs/toolkit'
 import axios from 'axios'
 
-// Thunk for fetching all posts
-export const fetchAllPosts = createAsyncThunk('posts/fetchAll', async () => {
-  const response = await axios.get('http://localhost:5000/api/posts/all')
-  return response.data
-})
+import { fetchPostById, fetchAllPosts, createPost, updatePost } from './postApi'
 
-// Thunk for fetching a single post by ID (fallback if post not found in state)
-export const fetchPostById = createAsyncThunk(
-  'posts/fetchById',
-  async (id, { getState }) => {
-    const { posts } = getState()
-    // Try to find the post in allPosts array first
-    const existingPost = posts.allPosts.find((post) => post._id === id)
-    if (existingPost) {
-      return existingPost // Return the post if found
-    }
+const initialState = {
+  allPosts: {
+    data: [],
+    status: 'idle',
+    error: null,
+    message: null
+  },
+  currentPost: {
+    data: null,
+    status: 'idle',
+    error: null,
+    message: null
+  },
+  createPost: {
+    status: 'idle',
+    error: null,
+    message: null
+  },
+  updatePost: {
+    status: 'idle',
+    error: null,
+    message: null
+  },
+  fetchPosts: {
+    status: 'idle',
+    error: null,
+    message: null
+  }
+}
 
-    // If not found, make an API call
-    const response = await axios.get(`http://localhost:5000/api/posts/${id}`)
-    return response.data
-  }
-)
-// Thunk for creating a post
-export const createPost = createAsyncThunk(
-  'posts/createPost',
-  async ({ postData, token }, { rejectWithValue }) => {
-    try {
-      const response = await axios.post(
-        'http://localhost:5000/api/posts/create',
-        postData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}` // Use token for future authentication
-          }
-        }
-      )
-      return response.data
-    } catch (error) {
-      return rejectWithValue(error.response.data)
-    }
-  }
-)
 const postsSlice = createSlice({
   name: 'posts',
-  initialState: {
-    allPosts: [],
-    currentPost: null,
-    status: 'idle',
-    error: null
+  initialState,
+  reducers: {
+    resetCurrentPost: (state) => {
+      state.currentPost = {
+        data: null,
+        status: 'idle',
+        error: null,
+        message: null
+      }
+    },
+    resetCreatePost: (state) => {
+      // NEW ACTION
+      state.createPost = {
+        status: 'idle',
+        error: null,
+        message: null
+      }
+    }
   },
-  reducers: {},
   extraReducers: (builder) => {
     builder
       // Handle fetch all posts
       .addCase(fetchAllPosts.pending, (state) => {
-        state.status = 'loading'
+        state.allPosts.status = 'loading'
       })
       .addCase(fetchAllPosts.fulfilled, (state, action) => {
-        state.status = 'succeeded'
-        state.allPosts = action.payload
+        state.allPosts.status = 'succeeded'
+        state.allPosts.data = action.payload
+        state.allPosts.message = 'Posts fetched successfully'
       })
       .addCase(fetchAllPosts.rejected, (state, action) => {
-        state.status = 'failed'
-        state.error = action.error.message
+        state.allPosts.status = 'failed'
+        state.allPosts.error = action.error.message
+        state.allPosts.message = action.payload || 'Failed to fetch posts'
       })
       // Handle fetch post by ID (fallback)
       .addCase(fetchPostById.pending, (state) => {
-        state.status = 'loading'
+        state.currentPost.status = 'loading'
       })
       .addCase(fetchPostById.fulfilled, (state, action) => {
-        state.status = 'succeeded'
-        state.currentPost = action.payload
+        state.currentPost.status = 'succeeded'
+        state.currentPost.data = action.payload
+        state.currentPost.message = 'Post fetched successfully'
       })
       .addCase(fetchPostById.rejected, (state, action) => {
-        state.status = 'failed'
-        state.error = action.error.message
+        state.currentPost.status = 'failed'
+        state.currentPost.error = action.error.message
+        state.currentPost.message = action.payload || 'Failed to fetch post'
       })
-      .addCase(createPost.pending,(state,action)=>{
-        state.status = 'loading';
+      // Handle create post
+      .addCase(createPost.pending, (state) => {
+        state.createPost.status = 'loading'
       })
       .addCase(createPost.fulfilled, (state, action) => {
-        state.allPosts.push(action.payload) // Add new post to the state
+        state.createPost.status = 'succeeded'
+        state.allPosts.data.unshift(action.payload.post) // Add new post to the start
+        state.createPost.message = 'Post created successfully'
       })
       .addCase(createPost.rejected, (state, action) => {
-        state.error = action.payload
+        state.createPost.status = 'failed'
+        state.createPost.error = action.payload
+        state.createPost.message = action.payload || 'Failed to create post'
+      })
+      // Handle update post
+      .addCase(updatePost.pending, (state) => {
+        state.updatePost.status = 'loading'
+      })
+      .addCase(updatePost.fulfilled, (state, action) => {
+        state.updatePost.status = 'succeeded'
+        const index = state.allPosts.data.findIndex(
+          (post) => post._id === action.payload._id
+        )
+        if (index !== -1) {
+          state.allPosts.data[index] = action.payload
+        }
+        state.updatePost.message = 'Post updated successfully'
+      })
+      .addCase(updatePost.rejected, (state, action) => {
+        state.updatePost.status = 'failed'
+        state.updatePost.error = action.payload
+        state.updatePost.message = action.payload || 'Failed to update post'
       })
   }
 })
-
+export const { resetCurrentPost, resetCreatePost } = postsSlice.actions
 export default postsSlice.reducer

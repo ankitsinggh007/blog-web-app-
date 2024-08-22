@@ -1,12 +1,14 @@
 import React from 'react'
 import { Formik, Form, Field, ErrorMessage } from 'formik'
 import * as Yup from 'yup'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
 import { registerUser } from '../features/users/userSlice'
+import { toast, Toaster } from 'react-hot-toast'
 
 const SignupPage = () => {
   const dispatch = useDispatch()
+  const navigate = useNavigate()
 
   const validationSchema = Yup.object({
     name: Yup.string().required('Name is required'),
@@ -22,13 +24,14 @@ const SignupPage = () => {
   const handleSignup = (values, { setSubmitting }) => {
     dispatch(registerUser(values))
       .unwrap()
-      .then((response) => {
-        // Handle success (e.g., redirect to login or home)
-        console.log('Registration successful:', response)
+      .then(() => {
+        toast.success('Registration successful!')
+        setTimeout(() => {
+          navigate('/login') // Redirect to login after a delay
+        }, 1000)
       })
       .catch((error) => {
-        // Handle error (e.g., display error message)
-        console.log('Registration failed:', error)
+        toast.error('Registration failed: ' + error.message)
       })
       .finally(() => {
         setSubmitting(false)
@@ -37,6 +40,7 @@ const SignupPage = () => {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-100 px-4 sm:px-6 lg:px-8">
+      <Toaster position="top-center" reverseOrder={false} />
       <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-lg sm:p-8 md:p-10 lg:p-12">
         <h2 className="mb-6 text-center text-2xl font-bold text-gray-900">
           Sign Up
@@ -127,7 +131,7 @@ const SignupPage = () => {
                 disabled={isSubmitting}
                 className="w-full rounded-md bg-indigo-600 px-4 py-2 text-white transition duration-300 hover:bg-indigo-700"
               >
-                Sign Up
+                {isSubmitting ? 'Submitting...' : 'Sign Up'}
               </button>
             </Form>
           )}

@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom'
 
 const PostCard = ({ post }) => {
   const { title, content, _id } = post
+  
   return (
     <div className="my-4 overflow-hidden rounded-lg bg-white shadow-md">
       {/* Future image can be added here */}

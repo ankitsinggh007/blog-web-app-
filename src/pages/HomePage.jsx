@@ -4,11 +4,13 @@ import { Card } from '../components'
 import dummyPosts from '../../data'
 import { useDispatch, useSelector } from 'react-redux'
 
-import { fetchAllPosts } from '../features/posts/postSlice'
+import { fetchAllPosts } from '../features/posts/postApi'
 const Home = () => {
   const dispatch = useDispatch()
-  const posts = useSelector((state) => state.posts.allPosts)
-  const status = useSelector((state) => state.posts.status)
+
+  const { allPosts } = useSelector((state) => state.posts)
+
+  const { status, data, error, message } = allPosts
 
   useEffect(() => {
     if (status === 'idle') {
@@ -22,8 +24,8 @@ const Home = () => {
       </h1>
       {status === 'loading' && <p>Loading posts...</p>}
 
-      {status == 'succeeded' && posts.length > 0 ? (
-        posts.map((post) => <Card key={post._id} post={post} />)
+      {status == 'succeeded' && data.length > 0 ? (
+        data.map((post) => <Card key={post._id} post={post} />)
       ) : (
         <p className="text-center text-gray-600">No posts available</p>
       )}

@@ -1,14 +1,16 @@
 import React, { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
-import { fetchPostById } from '../features/posts/postSlice'
+import { fetchPostById } from '../features/posts/postApi'
+import { resetCurrentPost } from '../features/posts/postSlice'
 import {
   FaThumbsUp,
   FaComment,
   FaEye,
   FaEllipsisV,
   FaTrashAlt,
-  FaEdit
+  FaEdit,
+  FaCheckCircle
 } from 'react-icons/fa'
 
 const PostDetails = () => {
@@ -16,32 +18,45 @@ const PostDetails = () => {
   const navigate = useNavigate()
   const dispatch = useDispatch()
 
-  // Fetch post data from Redux store
-  const post = useSelector((state) => state.posts.currentPost)
+  const { currentPost } = useSelector((state) => state.posts)
   const loggedInUserId = 1 // Example logged-in user ID for demo
+
+  const { data, status, error } = currentPost
   const [dropdownOpen, setDropdownOpen] = useState(false)
+
+  const { users } = useSelector((state) => state)
+
+  const user = users?.user?.user
 
   useEffect(() => {
     dispatch(fetchPostById(id))
+    return () => dispatch(resetCurrentPost())
   }, [dispatch, id])
 
   const handleDropdownToggle = () => {
     setDropdownOpen(!dropdownOpen)
   }
+  console.log(data, 'dd')
 
   const handleDelete = () => {
-    console.log('Delete post with ID:', post?.id)
     // Add your delete logic here (API call)
   }
 
   const handleUpdate = () => {
-    navigate(`/update-post/${post?.id}`, { state: { post } })
+    navigate(`/update-post/${data?._id}`, { state: { post: data } })
   }
 
+  if (status === 'loading') {
+    return <p>Loading post details...</p>
+  }
+
+  if (status === 'failed') {
+    return <p>Error: {error}</p>
+  }
   return (
     <div className="relative mx-auto max-w-4xl p-6">
       {/* Dropdown Button */}
-      {loggedInUserId === post?.ownerId && (
+      {user?._id === data?.author._id && (
         <div className="relative mb-6">
           <button
             onClick={handleDropdownToggle}
@@ -71,20 +86,51 @@ const PostDetails = () => {
       )}
 
       {/* Show post details */}
-      {post ? (
+      {data ? (
         <>
-          <h1 className="mb-4 text-4xl font-bold md:text-5xl lg:text-6xl">
-            {post.title}
-          </h1>
-          <p className="text-lg leading-relaxed md:text-xl lg:text-[1.45rem]">
-            {post.content}
-          </p>
+          <div className="">
+            <h1 className="mb-4 text-4xl font-bold md:text-5xl lg:text-6xl">
+              {data.title}
+            </h1>
+            <p className="text-lg leading-relaxed md:text-xl lg:text-[1.45rem]">
+              {data.content}
+            </p>
 
-          <div className="mt-6 flex flex-col text-xl sm:flex-row sm:space-x-8">
+            <div className="bottom-4 left-4 m-4 flex items-center space-x-4">
+              {/* Circular Avatar */}
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-300">
+                {/* Placeholder for future image */}
+                <span className="text-xl font-bold text-white">
+                  {data?.author?.username.charAt(0).toUpperCase()}
+                </span>
+              </div>
+
+              <div>
+                <p className="text-sm text-gray-600">
+                  Posted by {data?.author?.username}
+                </p>
+                <p className="text-sm text-gray-500">
+                  {new Date(data.createdAt).toLocaleDateString()}
+                </p>
+
+                {/* Edited Label */}
+                {/* {data.__v > 0 && (
+                  <div className="flex items-center space-x-1 text-xs text-blue-500">
+                    <FaCheckCircle />
+                    <span>
+                      Edited on {new Date(data.updatedAt).toLocaleDateString()}
+                    </span>
+                  </div>
+                )} */}
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-6 flex flex-row items-baseline space-x-8 text-xl">
             {/* Like */}
             <div className="group relative mb-4 flex items-center space-x-2 sm:mb-0">
               <FaThumbsUp className="cursor-pointer text-gray-600 hover:text-blue-600" />
-              <span>{post.likes}</span>
+              <span>{data.likes?.length}</span>
               <span className="absolute bottom-full mb-2 hidden rounded bg-gray-800 px-2 py-1 text-xs text-white group-hover:block">
                 Like
               </span>
@@ -93,7 +139,7 @@ const PostDetails = () => {
             {/* Comment */}
             <div className="group relative mb-4 flex items-center space-x-2 sm:mb-0">
               <FaComment className="cursor-pointer text-gray-600 hover:text-green-600" />
-              <span>{post.comments}</span>
+              <span>{data.comments?.length}</span>
               <span className="absolute bottom-full mb-2 hidden rounded bg-gray-800 px-2 py-1 text-xs text-white group-hover:block">
                 Comment
               </span>
@@ -102,15 +148,17 @@ const PostDetails = () => {
             {/* Impression */}
             <div className="group relative flex items-center space-x-2">
               <FaEye className="cursor-pointer text-gray-600 hover:text-purple-600" />
-              <span>{post.impressions}</span>
+              <span>{data.impressions}</span>
               <span className="absolute bottom-full mb-2 hidden rounded bg-gray-800 px-2 py-1 text-xs text-white group-hover:block">
                 Impression
               </span>
             </div>
           </div>
+
+          {/* Author and metadata */}
         </>
       ) : (
-        <p>Loading post details...</p>
+        <p>No post found</p>
       )}
     </div>
   )

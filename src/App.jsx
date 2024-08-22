@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
   CreatePost,
   HomePage,
@@ -11,9 +11,18 @@ import { Routes, Route } from 'react-router-dom'
 import Layout from './components/Layout'
 import PostDetails from './components/PostDetails'
 import dummyPosts from '../data'
+import { fetchUser } from './features/users/userSlice'
+import { useDispatch, useSelector } from 'react-redux'
 // import './App.css'
-
 function App() {
+  const dispatch = useDispatch()
+  const { user } = useSelector((state) => state.users)
+  useEffect(() => {
+    if (localStorage.getItem('token')) {
+      dispatch(fetchUser())
+    }
+  }, [dispatch])
+
   return (
     <Layout>
       <Routes>
