@@ -1,8 +1,8 @@
 import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { FaUserCircle } from 'react-icons/fa'
+import { FaUserCircle, FaBars } from 'react-icons/fa'
 import { useDispatch, useSelector } from 'react-redux'
-import { logoutUser } from '../features/users/userSlice'
+import { logoutUser } from '../features/users/userApi'
 import { toast } from 'react-hot-toast'
 
 const Navbar = () => {
@@ -20,6 +20,7 @@ const Navbar = () => {
   const handleLogout = async () => {
     try {
       await dispatch(logoutUser()).unwrap()
+      setIsAvatarMenuOpen(!isAvatarMenuOpen) // Close avatar menu if logout successful
       toast.success('Logged out successfully!')
       navigate('/login')
     } catch (error) {
@@ -67,20 +68,7 @@ const Navbar = () => {
                   onClick={() => setIsMenuOpen(!isMenuOpen)}
                   className="text-white focus:outline-none"
                 >
-                  <svg
-                    className="h-6 w-6"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M4 6h16M4 12h16M4 18h16"
-                    />
-                  </svg>
+                  <FaBars className="h-6 w-6" />
                 </button>
                 <div
                   className={`absolute right-0 top-8 w-48 rounded-md bg-white text-black shadow-lg ${isMenuOpen ? 'block' : 'hidden'}`}

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import {
   CreatePost,
   HomePage,
@@ -7,19 +7,26 @@ import {
   UpdatePost
 } from './pages'
 import Navbar from './components/Navbar'
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, Navigate } from 'react-router-dom'
 import Layout from './components/Layout'
 import PostDetails from './components/PostDetails'
-import dummyPosts from '../data'
-import { fetchUser } from './features/users/userSlice'
+import { fetchUser } from './features/users/userApi'
 import { useDispatch, useSelector } from 'react-redux'
-// import './App.css'
+
+function ProtectedRoute({ user, children }) {
+  if (!user) {
+    return <Navigate to="/login" />
+  }
+  return children
+}
+
 function App() {
   const dispatch = useDispatch()
   const { user } = useSelector((state) => state.users)
+
   useEffect(() => {
     if (localStorage.getItem('token')) {
-      dispatch(fetchUser())
+      dispatch(fetchUser()) // Only fetch user if token is present
     }
   }, [dispatch])
 
@@ -27,12 +34,35 @@ function App() {
     <Layout>
       <Routes>
         <Route path="/" element={<HomePage />} />
+        <Route path="/my-posts" element={<HomePage isMyPosts={true} />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
-        <Route path="/posts/:id" element={<PostDetails posts={dummyPosts} />} />
+        <Route path="/posts/:id" element={<PostDetails />} />
 
-        <Route path="/create-post" element={<CreatePost />} />
-        <Route path="/update-post/:id" element={<UpdatePost />} />
+        <Route
+          path="/create-post"
+          element={
+            <ProtectedRoute user={user}>
+              <CreatePost />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/my-posts/"
+          element={
+            <ProtectedRoute user={user}>
+              <HomePage isMyPosts={true} user={user} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/update-post/:id"
+          element={
+            <ProtectedRoute user={user}>
+              <UpdatePost />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </Layout>
   )

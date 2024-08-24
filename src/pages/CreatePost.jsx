@@ -4,7 +4,12 @@ import { useDispatch, useSelector } from 'react-redux'
 import { createPost } from '../features/posts/postApi'
 import { useNavigate } from 'react-router-dom'
 import { toast, Toaster } from 'react-hot-toast'
-import { resetCurrentPost, resetCreatePost } from '../features/posts/postSlice'
+import {
+  resetCurrentPost,
+  resetCreatePost,
+  clearfetchAllPosts,
+  clearfetchMyPosts
+} from '../features/posts/postSlice'
 const CreatePost = () => {
   const dispatch = useDispatch()
   const { createPost: creatingPost } = useSelector((state) => state.posts)
@@ -23,15 +28,22 @@ const CreatePost = () => {
       toast.success('Post created successfully!')
       setTimeout(() => {
         navigate('/')
-      }, 5000) // Redirect after 5 seconds
+      }, 2000) // Redirect after 2 seconds
     }
+
     if (status === 'failed') {
-      toast.error(`Error: ${error}`)
+      toast.error(`Error: ${error || message}`)
     }
   }, [status, error, navigate])
 
   const handleCreatePost = (values) => {
-    dispatch(createPost(values))
+    try {
+      dispatch(createPost(values)).unwrap()
+      dispatch(clearfetchAllPosts())
+      dispatch(clearfetchMyPosts())
+    } catch (error) {
+      toast.error(error.message || 'Failed to create post')
+    }
   }
 
   return (

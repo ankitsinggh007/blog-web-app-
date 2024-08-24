@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
-import { fetchPostById } from '../features/posts/postApi'
+import { fetchPostById, deletePost } from '../features/posts/postApi'
 import { resetCurrentPost } from '../features/posts/postSlice'
 import {
   FaThumbsUp,
@@ -12,21 +12,22 @@ import {
   FaEdit,
   FaCheckCircle
 } from 'react-icons/fa'
+import {
+  clearfetchAllPosts,
+  clearfetchMyPosts
+} from '../features/posts/postSlice'
+import { Toaster, toast } from 'react-hot-toast'
 
 const PostDetails = () => {
   const { id } = useParams()
   const navigate = useNavigate()
   const dispatch = useDispatch()
-
   const { currentPost } = useSelector((state) => state.posts)
-  const loggedInUserId = 1 // Example logged-in user ID for demo
-
   const { data, status, error } = currentPost
   const [dropdownOpen, setDropdownOpen] = useState(false)
 
-  const { users } = useSelector((state) => state)
-
-  const user = users?.user?.user
+  let { user } = useSelector((state) => state.users)
+  user = user?.user
 
   useEffect(() => {
     dispatch(fetchPostById(id))
@@ -36,10 +37,22 @@ const PostDetails = () => {
   const handleDropdownToggle = () => {
     setDropdownOpen(!dropdownOpen)
   }
-  console.log(data, 'dd')
 
   const handleDelete = () => {
-    // Add your delete logic here (API call)
+    dispatch(deletePost(data?._id))
+      .unwrap()
+      .then(() => {
+        setDropdownOpen(!dropdownOpen)
+        toast.success('Post deleted successfully')
+        dispatch(clearfetchAllPosts())
+        dispatch(clearfetchMyPosts())
+        setTimeout(() => {
+          navigate('/') // Redirect to homepage after deletion
+        }, 400)
+      })
+      .catch((err) => {
+        toast.error(`Error deleting post: ${err.message}`)
+      })
   }
 
   const handleUpdate = () => {
@@ -56,7 +69,8 @@ const PostDetails = () => {
   return (
     <div className="relative mx-auto max-w-4xl p-6">
       {/* Dropdown Button */}
-      {user?._id === data?.author._id && (
+      <Toaster />
+      {user?._id === data?.author?._id && (
         <div className="relative mb-6">
           <button
             onClick={handleDropdownToggle}

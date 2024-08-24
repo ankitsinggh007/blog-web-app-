@@ -13,8 +13,8 @@ export const fetchPostById = createAsyncThunk(
   'posts/fetchById',
   async (id, { getState }) => {
     const { posts } = getState()
-    const { allPosts } = posts
-    const { data } = allPosts
+    const { allPost } = posts
+    const { data } = allPost
 
     // Try to find the post in allPosts array first
     const existingPost = data?.find((post) => post?._id === id)
@@ -33,7 +33,6 @@ export const fetchPostById = createAsyncThunk(
 export const createPost = createAsyncThunk(
   'posts/createPost',
   async (postData, { rejectWithValue }) => {
-    console.log('i am here how did you find me')
     try {
       const token = localStorage.getItem('token')
       const response = await axios.post(
@@ -75,6 +74,50 @@ export const updatePost = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(
         error.response?.data?.message || 'Failed to update post'
+      )
+    }
+  }
+)
+
+export const deletePost = createAsyncThunk(
+  'posts/deletePost',
+  async (id, { rejectWithValue }) => {
+    try {
+      const token = localStorage.getItem('token')
+      const response = await axios.delete(
+        `http://localhost:5000/api/posts/${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      )
+
+      return response.data
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data.message || 'failed to delete post'
+      )
+    }
+  }
+)
+
+export const fetchAllMyPost = createAsyncThunk(
+  'posts/fetchMyPost',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await axios.get(
+        `http://localhost:5000/api/posts/my-post`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`
+          }
+        }
+      )
+      return response.data
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || 'Failed to fetch your posts'
       )
     }
   }

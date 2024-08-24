@@ -6,7 +6,6 @@ import * as Yup from 'yup'
 const FormPage = ({ post = {}, onSubmit }) => {
   // Initial values for form fields
 
-  console.log(post, 'post')
   const initialValues = {
     title: post.title || '',
     content: post.content || '',

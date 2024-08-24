@@ -2,7 +2,11 @@ import React from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { Form } from '../components'
 import { useDispatch } from 'react-redux'
-import { updatePost } from '../features/posts/postApi'
+import { updatePost, fetchAllPosts } from '../features/posts/postApi'
+import {
+  clearfetchAllPosts,
+  clearfetchMyPosts
+} from '../features/posts/postSlice'
 import { toast, Toaster } from 'react-hot-toast'
 
 const UpdatePost = () => {
@@ -20,13 +24,20 @@ const UpdatePost = () => {
 
       // Show success notification
       toast.success('Post updated successfully')
-      // Navigate back to homepage after 3 seconds
+      // clear status of fetchAllPost
+      dispatch(clearfetchAllPosts())
+      dispatch(clearfetchMyPosts())
+      // Navigate back to homepage after 2 seconds
       setTimeout(() => {
         navigate('/')
-      }, 3000)
+      }, 2000)
     } catch (error) {
       // Show error notification
-      toast.error(error.message || 'Failed to update post')
+      toast.error(
+        error.response?.data?.message ||
+          error.message ||
+          'Failed to update post'
+      )
     }
   }
 

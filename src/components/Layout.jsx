@@ -8,7 +8,7 @@ const Layout = ({ children }) => {
       <Navbar />
       <div className="flex flex-grow">
         {/* Main content */}
-        <main className="px-34 flex-grow p-4">{children}</main>
+        <main className="lg:px-34 flex-grow p-4 px-8 md:px-16">{children}</main>
         <aside className="hidden w-64 bg-gray-100 lg:block">
           {/* Sidebar content can be added here later */}
         </aside>

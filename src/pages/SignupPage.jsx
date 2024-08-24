@@ -3,7 +3,7 @@ import { Formik, Form, Field, ErrorMessage } from 'formik'
 import * as Yup from 'yup'
 import { Link, useNavigate } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
-import { registerUser } from '../features/users/userSlice'
+import { registerUser } from '../features/users/userApi'
 import { toast, Toaster } from 'react-hot-toast'
 
 const SignupPage = () => {
@@ -28,7 +28,7 @@ const SignupPage = () => {
         toast.success('Registration successful!')
         setTimeout(() => {
           navigate('/login') // Redirect to login after a delay
-        }, 1000)
+        }, 400)
       })
       .catch((error) => {
         toast.error('Registration failed: ' + error.message)

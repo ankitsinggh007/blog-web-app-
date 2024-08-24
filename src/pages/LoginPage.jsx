@@ -3,14 +3,14 @@ import { Formik, Form, Field, ErrorMessage } from 'formik'
 import * as Yup from 'yup'
 import { Link, useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
-import { loginUser } from '../features/users/userSlice'
+import { loginUser } from '../features/users/userApi'
 import { toast, Toaster } from 'react-hot-toast'
 
 const LoginPage = () => {
   const dispatch = useDispatch()
   const navigate = useNavigate()
   const { status, error, user } = useSelector((state) => state.users)
-  console.log([status, error, user])
+
   const validationSchema = Yup.object({
     email: Yup.string()
       .email('Invalid email format')
@@ -33,16 +33,16 @@ const LoginPage = () => {
   useEffect(() => {
     if (status === 'succeeded' && user) {
       toast.success('Login successful!')
-      navigate('/')
+      navigate('/') // navigate after toast to avoid interruption
     }
     if (status === 'failed' && error) {
-      toast.error(`${error}`)
+      toast.error(error)
     }
-  }, [status, error, user])
+  }, [status, error, user, navigate])
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-100 px-4 sm:px-6 lg:px-8">
-      <Toaster position="top-center" reverseOrder={false} />{' '}
+      <Toaster position="top-center" reverseOrder={false} />
       <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-lg sm:p-8 md:p-10 lg:p-12">
         <h2 className="mb-6 text-center text-2xl font-bold text-gray-900">
           Login

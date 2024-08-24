@@ -1,17 +1,25 @@
 import { createSlice } from '@reduxjs/toolkit'
 import axios from 'axios'
 
-import { fetchPostById, fetchAllPosts, createPost, updatePost } from './postApi'
+import {
+  fetchPostById,
+  fetchAllPosts,
+  createPost,
+  updatePost,
+  deletePost,
+  fetchAllMyPost
+} from './postApi'
+import { data } from 'autoprefixer'
 
 const initialState = {
-  allPosts: {
+  allPost: {
     data: [],
     status: 'idle',
     error: null,
     message: null
   },
   currentPost: {
-    data: null,
+    data: [],
     status: 'idle',
     error: null,
     message: null
@@ -27,6 +35,17 @@ const initialState = {
     message: null
   },
   fetchPosts: {
+    status: 'idle',
+    error: null,
+    message: null
+  },
+  deletPost: {
+    status: 'idle',
+    error: null,
+    message: null
+  },
+  myPost: {
+    data: [],
     status: 'idle',
     error: null,
     message: null
@@ -52,23 +71,29 @@ const postsSlice = createSlice({
         error: null,
         message: null
       }
+    },
+    clearfetchAllPosts: (state) => {
+      state.allPost.status = 'idle'
+    },
+    clearfetchMyPosts: (state) => {
+      state.myPost.status = 'idle'
     }
   },
   extraReducers: (builder) => {
     builder
       // Handle fetch all posts
       .addCase(fetchAllPosts.pending, (state) => {
-        state.allPosts.status = 'loading'
+        state.allPost.status = 'loading'
       })
       .addCase(fetchAllPosts.fulfilled, (state, action) => {
-        state.allPosts.status = 'succeeded'
-        state.allPosts.data = action.payload
-        state.allPosts.message = 'Posts fetched successfully'
+        state.allPost.status = 'succeeded'
+        state.allPost.data = action.payload
+        state.allPost.message = 'Posts fetched successfully'
       })
       .addCase(fetchAllPosts.rejected, (state, action) => {
-        state.allPosts.status = 'failed'
-        state.allPosts.error = action.error.message
-        state.allPosts.message = action.payload || 'Failed to fetch posts'
+        state.allPost.status = 'failed'
+        state.allPost.error = action.error.message
+        state.allPost.message = action.payload || 'Failed to fetch posts'
       })
       // Handle fetch post by ID (fallback)
       .addCase(fetchPostById.pending, (state) => {
@@ -90,7 +115,7 @@ const postsSlice = createSlice({
       })
       .addCase(createPost.fulfilled, (state, action) => {
         state.createPost.status = 'succeeded'
-        state.allPosts.data.unshift(action.payload.post) // Add new post to the start
+        state.allPost.data.unshift(action.payload.post) // Add new post to the start
         state.createPost.message = 'Post created successfully'
       })
       .addCase(createPost.rejected, (state, action) => {
@@ -104,12 +129,6 @@ const postsSlice = createSlice({
       })
       .addCase(updatePost.fulfilled, (state, action) => {
         state.updatePost.status = 'succeeded'
-        const index = state.allPosts.data.findIndex(
-          (post) => post._id === action.payload._id
-        )
-        if (index !== -1) {
-          state.allPosts.data[index] = action.payload
-        }
         state.updatePost.message = 'Post updated successfully'
       })
       .addCase(updatePost.rejected, (state, action) => {
@@ -117,7 +136,45 @@ const postsSlice = createSlice({
         state.updatePost.error = action.payload
         state.updatePost.message = action.payload || 'Failed to update post'
       })
+      // Handle delete post action
+      .addCase(deletePost.pending, (state, action) => {
+        state.deletPost.status = 'loading'
+      })
+      .addCase(deletePost.fulfilled, (state, action) => {
+        state.deletPost.status = 'succeeded'
+        const index = state.allPost.data.findIndex(
+          (post) => post._id === action.payload.id
+        )
+        if (index !== -1) {
+          state.allPost.data.splice(index, 1)
+        }
+        state.deletPost.message = 'Post deleted successfully'
+      })
+      .addCase(deletePost.rejected, (state, action) => {
+        state.deletPost.status = 'failed'
+        state.deletPost.error = action.payload
+        state.deletPost.message = action.payload || 'Failed to delete post'
+      })
+      // Handle fetch my posts
+      .addCase(fetchAllMyPost.pending, (state) => {
+        state.myPost.status = 'loading'
+      })
+      .addCase(fetchAllMyPost.fulfilled, (state, action) => {
+        state.myPost.status = 'succeeded'
+        state.myPost.data = action.payload // Add new post to the start
+        state.myPost.message = 'Post created successfully'
+      })
+      .addCase(fetchAllMyPost.rejected, (state, action) => {
+        state.myPost.status = 'failed'
+        state.myPost.error = action.payload
+        state.myPost.message = action.payload || 'Failed to create post'
+      })
   }
 })
-export const { resetCurrentPost, resetCreatePost } = postsSlice.actions
+export const {
+  resetCurrentPost,
+  clearfetchAllPosts,
+  clearfetchMyPosts,
+  resetCreatePost
+} = postsSlice.actions
 export default postsSlice.reducer
