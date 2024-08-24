@@ -2,7 +2,7 @@ import { asyncThunkCreator, createAsyncThunk } from '@reduxjs/toolkit'
 import axios from 'axios'
 // Thunk for fetching all posts
 export const fetchAllPosts = createAsyncThunk('posts/fetchAll', async () => {
-  const response = await axios.get('http://localhost:5000/api/posts/all')
+  const response = await axios.get('posts/all')
 
   return response.data
 })
@@ -23,7 +23,7 @@ export const fetchPostById = createAsyncThunk(
     }
 
     // If not found, make an API call
-    const response = await axios.get(`http://localhost:5000/api/posts/${id}`)
+    const response = await axios.get(`posts/${id}`)
     return response.data
   }
 )
@@ -36,7 +36,7 @@ export const createPost = createAsyncThunk(
     try {
       const token = localStorage.getItem('token')
       const response = await axios.post(
-        'http://localhost:5000/api/posts/create', // Your post creation API
+        'posts/create', // Your post creation API
         postData,
         {
           headers: {
@@ -62,7 +62,7 @@ export const updatePost = createAsyncThunk(
 
       const token = localStorage.getItem('token')
       const response = await axios.patch(
-        `http://localhost:5000/api/posts/${id}`, // Your post update API
+        `posts/${id}`, // Your post update API
         values,
         {
           headers: {
@@ -84,14 +84,11 @@ export const deletePost = createAsyncThunk(
   async (id, { rejectWithValue }) => {
     try {
       const token = localStorage.getItem('token')
-      const response = await axios.delete(
-        `http://localhost:5000/api/posts/${id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
+      const response = await axios.delete(`posts/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`
         }
-      )
+      })
 
       return response.data
     } catch (error) {
@@ -106,14 +103,11 @@ export const fetchAllMyPost = createAsyncThunk(
   'posts/fetchMyPost',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axios.get(
-        `http://localhost:5000/api/posts/my-post`,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`
-          }
+      const response = await axios.get(`posts/my-post`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`
         }
-      )
+      })
       return response.data
     } catch (error) {
       return rejectWithValue(

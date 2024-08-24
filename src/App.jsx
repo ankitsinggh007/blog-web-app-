@@ -12,6 +12,8 @@ import Layout from './components/Layout'
 import PostDetails from './components/PostDetails'
 import { fetchUser } from './features/users/userApi'
 import { useDispatch, useSelector } from 'react-redux'
+import axios from 'axios'
+const apiUrl = import.meta.env.VITE_API_URL
 
 function ProtectedRoute({ user, children }) {
   if (!user) {
@@ -19,7 +21,7 @@ function ProtectedRoute({ user, children }) {
   }
   return children
 }
-
+axios.defaults.baseURL = apiUrl || 'http://localhost:5000/api/'
 function App() {
   const dispatch = useDispatch()
   const { user } = useSelector((state) => state.users)
