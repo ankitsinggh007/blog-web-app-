@@ -3,8 +3,10 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 
 const PostCard = ({ post }) => {
-  const { title, content, id } = post
+  const { title, content, _id } = post;
+  
 
+  
   return (
     <div className="my-4 overflow-hidden rounded-lg bg-white shadow-md">
       {/* Future image can be added here */}
@@ -16,7 +18,7 @@ const PostCard = ({ post }) => {
           {content.length > 100 ? `${content.slice(0, 100)}...` : content}
         </p>
         <Link
-          to={`/posts/${id}`}
+          to={`/posts/${_id}`}
           className="text-indigo-600 hover:text-indigo-800"
         >
           Read more

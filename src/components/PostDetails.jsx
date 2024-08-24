@@ -1,52 +1,76 @@
-// src/pages/PostDetails.jsx
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
+import { useDispatch, useSelector } from 'react-redux'
+import { fetchPostById, deletePost } from '../features/posts/postApi'
+import { resetCurrentPost } from '../features/posts/postSlice'
 import {
   FaThumbsUp,
   FaComment,
   FaEye,
   FaEllipsisV,
   FaTrashAlt,
-  FaEdit
+  FaEdit,
+  FaCheckCircle
 } from 'react-icons/fa'
+import {
+  clearfetchAllPosts,
+  clearfetchMyPosts
+} from '../features/posts/postSlice'
+import { Toaster, toast } from 'react-hot-toast'
 
 const PostDetails = () => {
   const { id } = useParams()
   const navigate = useNavigate()
-
-  // Example post data
-  const post = {
-    id: 1,
-    title: 'Sample Post Title',
-    content: `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque nisl eros, pulvinar facilisis justo mollis, auctor consequat urna. Morbi a bibendum metus. Donec scelerisque sollicitudin enim eu venenatis. Duis tincidunt laoreet ex, in pretium orci vestibulum eget. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos.`,
-    likes: 120,
-    comments: 45,
-    impressions: 250,
-    ownerId: 1 // ID of the post owner
-  }
-
-  const loggedInUserId = 1 // Example logged-in user ID for demo
-
+  const dispatch = useDispatch()
+  const { currentPost } = useSelector((state) => state.posts)
+  const { data, status, error } = currentPost
   const [dropdownOpen, setDropdownOpen] = useState(false)
+
+  let { user } = useSelector((state) => state.users)
+  user = user?.user
+
+  useEffect(() => {
+    dispatch(fetchPostById(id))
+    return () => dispatch(resetCurrentPost())
+  }, [dispatch, id])
 
   const handleDropdownToggle = () => {
     setDropdownOpen(!dropdownOpen)
   }
 
   const handleDelete = () => {
-    // Function to delete the post
-    console.log('Delete post with ID:', post.id)
+    dispatch(deletePost(data?._id))
+      .unwrap()
+      .then(() => {
+        setDropdownOpen(!dropdownOpen)
+        toast.success('Post deleted successfully')
+        dispatch(clearfetchAllPosts())
+        dispatch(clearfetchMyPosts())
+        setTimeout(() => {
+          navigate('/') // Redirect to homepage after deletion
+        }, 400)
+      })
+      .catch((err) => {
+        toast.error(`Error deleting post: ${err.message}`)
+      })
   }
 
   const handleUpdate = () => {
-    // Redirect to the update post page with the current post ID
-    navigate(`/update-post/${post.id}`, { state: { post } })
+    navigate(`/update-post/${data?._id}`, { state: { post: data } })
   }
 
+  if (status === 'loading') {
+    return <p>Loading post details...</p>
+  }
+
+  if (status === 'failed') {
+    return <p>Error: {error}</p>
+  }
   return (
     <div className="relative mx-auto max-w-4xl p-6">
       {/* Dropdown Button */}
-      {loggedInUserId === post.ownerId && (
+      <Toaster />
+      {user?._id === data?.author?._id && (
         <div className="relative mb-6">
           <button
             onClick={handleDropdownToggle}
@@ -75,41 +99,81 @@ const PostDetails = () => {
         </div>
       )}
 
-      <h1 className="mb-4 text-4xl font-bold md:text-5xl lg:text-6xl">
-        {post.title}
-      </h1>
-      <p className="text-lg leading-relaxed md:text-xl lg:text-[1.45rem]">
-        {post.content}
-      </p>
+      {/* Show post details */}
+      {data ? (
+        <>
+          <div className="">
+            <h1 className="mb-4 text-4xl font-bold md:text-5xl lg:text-6xl">
+              {data.title}
+            </h1>
+            <p className="text-lg leading-relaxed md:text-xl lg:text-[1.45rem]">
+              {data.content}
+            </p>
 
-      <div className="mt-6 flex flex-col text-xl sm:flex-row sm:space-x-8">
-        {/* Like */}
-        <div className="group relative mb-4 flex items-center space-x-2 sm:mb-0">
-          <FaThumbsUp className="cursor-pointer text-gray-600 hover:text-blue-600" />
-          <span>{post.likes}</span>
-          <span className="absolute bottom-full mb-2 hidden rounded bg-gray-800 px-2 py-1 text-xs text-white group-hover:block">
-            Like
-          </span>
-        </div>
+            <div className="bottom-4 left-4 m-4 flex items-center space-x-4">
+              {/* Circular Avatar */}
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-300">
+                {/* Placeholder for future image */}
+                <span className="text-xl font-bold text-white">
+                  {data?.author?.username.charAt(0).toUpperCase()}
+                </span>
+              </div>
 
-        {/* Comment */}
-        <div className="group relative mb-4 flex items-center space-x-2 sm:mb-0">
-          <FaComment className="cursor-pointer text-gray-600 hover:text-green-600" />
-          <span>{post.comments}</span>
-          <span className="absolute bottom-full mb-2 hidden rounded bg-gray-800 px-2 py-1 text-xs text-white group-hover:block">
-            Comment
-          </span>
-        </div>
+              <div>
+                <p className="text-sm text-gray-600">
+                  Posted by {data?.author?.username}
+                </p>
+                <p className="text-sm text-gray-500">
+                  {new Date(data.createdAt).toLocaleDateString()}
+                </p>
 
-        {/* Impression */}
-        <div className="group relative flex items-center space-x-2">
-          <FaEye className="cursor-pointer text-gray-600 hover:text-purple-600" />
-          <span>{post.impressions}</span>
-          <span className="absolute bottom-full mb-2 hidden rounded bg-gray-800 px-2 py-1 text-xs text-white group-hover:block">
-            Impression
-          </span>
-        </div>
-      </div>
+                {/* Edited Label */}
+                {/* {data.__v > 0 && (
+                  <div className="flex items-center space-x-1 text-xs text-blue-500">
+                    <FaCheckCircle />
+                    <span>
+                      Edited on {new Date(data.updatedAt).toLocaleDateString()}
+                    </span>
+                  </div>
+                )} */}
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-6 flex flex-row items-baseline space-x-8 text-xl">
+            {/* Like */}
+            <div className="group relative mb-4 flex items-center space-x-2 sm:mb-0">
+              <FaThumbsUp className="cursor-pointer text-gray-600 hover:text-blue-600" />
+              <span>{data.likes?.length}</span>
+              <span className="absolute bottom-full mb-2 hidden rounded bg-gray-800 px-2 py-1 text-xs text-white group-hover:block">
+                Like
+              </span>
+            </div>
+
+            {/* Comment */}
+            <div className="group relative mb-4 flex items-center space-x-2 sm:mb-0">
+              <FaComment className="cursor-pointer text-gray-600 hover:text-green-600" />
+              <span>{data.comments?.length}</span>
+              <span className="absolute bottom-full mb-2 hidden rounded bg-gray-800 px-2 py-1 text-xs text-white group-hover:block">
+                Comment
+              </span>
+            </div>
+
+            {/* Impression */}
+            <div className="group relative flex items-center space-x-2">
+              <FaEye className="cursor-pointer text-gray-600 hover:text-purple-600" />
+              <span>{data.impressions}</span>
+              <span className="absolute bottom-full mb-2 hidden rounded bg-gray-800 px-2 py-1 text-xs text-white group-hover:block">
+                Impression
+              </span>
+            </div>
+          </div>
+
+          {/* Author and metadata */}
+        </>
+      ) : (
+        <p>No post found</p>
+      )}
     </div>
   )
 }

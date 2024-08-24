@@ -5,6 +5,7 @@ import * as Yup from 'yup'
 
 const FormPage = ({ post = {}, onSubmit }) => {
   // Initial values for form fields
+
   const initialValues = {
     title: post.title || '',
     content: post.content || '',
@@ -19,9 +20,11 @@ const FormPage = ({ post = {}, onSubmit }) => {
   })
 
   // Handle form submission
-  const handleSubmit = (values, { setSubmitting }) => {
+  const handleSubmit = (values, { setSubmitting, resetForm }) => {
     onSubmit(values)
     setSubmitting(false)
+
+    resetForm() // Reset form fields after successful submission
   }
 
   return (
@@ -100,7 +103,7 @@ const FormPage = ({ post = {}, onSubmit }) => {
               disabled={isSubmitting}
               className="w-full rounded-md bg-indigo-600 px-4 py-2 text-white transition duration-300 hover:bg-indigo-700"
             >
-              {post.id ? 'Update Post' : 'Create Post'}
+              {post._id ? 'Update Post' : 'Create Post'}
             </button>
           </Form>
         )}
