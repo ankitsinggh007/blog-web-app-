@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 
 const NotFoundPage = () => {
- s
+ 
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-gray-100">
