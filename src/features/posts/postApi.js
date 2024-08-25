@@ -1,6 +1,6 @@
 import { asyncThunkCreator, createAsyncThunk } from '@reduxjs/toolkit'
 import api from '../../utils/axios'
-
+console.log(api, 'api')
 // Thunk for fetching all posts
 export const fetchAllPosts = createAsyncThunk('posts/fetchAll', async () => {
   const response = await api.get('posts/all')

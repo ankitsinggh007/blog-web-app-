@@ -24,12 +24,10 @@ function ProtectedRoute({ user, children }) {
 
 function App() {
   const dispatch = useDispatch()
-  const { user } = useSelector((state) => state.users)
-
+  const users = useSelector((state) => state.users)
+  const { user } = users
   useEffect(() => {
-    if (localStorage.getItem('token')) {
-      dispatch(fetchUser()) // Only fetch user if token is present
-    }
+    if (users.status != 'succeeded') dispatch(fetchUser()) // No need to check for token in localStorage
   }, [dispatch])
 
   return (
