@@ -15,7 +15,7 @@ import { fetchUser } from './features/users/userApi'
 import { useDispatch, useSelector } from 'react-redux'
 import axios from 'axios'
 
-const apiUrl = import.meta.env.VITE_API_URL
+const apiUrl = import.meta.env?.VITE_API_URL
 
 function ProtectedRoute({ user, children }) {
   if (!user) {
