@@ -8,4 +8,6 @@ import Form from './Form'
 
 import Ticker from './Ticker'
 
-export { Card, Footer, Navbar, Ticker, Form }
+import Layout from './Layout'
+
+export { Card, Footer, Navbar, Layout, Ticker, Form }

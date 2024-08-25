@@ -7,9 +7,8 @@ import {
   UpdatePost,
   NotFoundPage // Import the new NotFoundPage
 } from './pages'
-import Navbar from './components/Navbar'
-import { Routes, Route, Navigate } from 'react-router-dom'
-import Layout from './components/Layout'
+import { Navbar, Layout } from './components'
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import PostDetails from './components/PostDetails'
 import { fetchUser } from './features/users/userApi'
 import { useDispatch, useSelector } from 'react-redux'
