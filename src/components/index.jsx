@@ -6,4 +6,6 @@ import Navbar from './Navbar'
 
 import Form from './Form'
 
-export { Card, Footer, Navbar, Form }
+import Ticker from './Ticker'
+
+export { Card, Footer, Navbar, Ticker, Form }

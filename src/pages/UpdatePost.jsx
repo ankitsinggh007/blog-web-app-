@@ -43,7 +43,7 @@ const UpdatePost = () => {
 
   return (
     <>
-      <Toaster /> {/* Toast notifications */}
+      <Toaster />
       <Form post={post} onSubmit={handleUpdatePost} />
     </>
   )

@@ -50,7 +50,7 @@ export const fetchUser = createAsyncThunk(
   'auth/fetchUser',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await api.get('http://localhost:5000/api/users/profile')
+      const response = await api.get('users/profile')
       return response.data
     } catch (error) {
       return rejectWithValue(

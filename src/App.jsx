@@ -13,7 +13,6 @@ import Layout from './components/Layout'
 import PostDetails from './components/PostDetails'
 import { fetchUser } from './features/users/userApi'
 import { useDispatch, useSelector } from 'react-redux'
-import axios from 'axios'
 
 function ProtectedRoute({ user, children }) {
   if (!user) {

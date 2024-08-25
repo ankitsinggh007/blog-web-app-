@@ -1,10 +1,9 @@
-// src/components/PostForm.jsx
 import React, { useState, useEffect } from 'react'
 import { Formik, Form, Field, ErrorMessage } from 'formik'
 import * as Yup from 'yup'
 
 const FormPage = ({ post = {}, onSubmit }) => {
-  // Initial values for form fields
+  const [isFormDirty, setIsFormDirty] = useState(false)
 
   const initialValues = {
     title: post.title || '',
@@ -12,7 +11,6 @@ const FormPage = ({ post = {}, onSubmit }) => {
     image: post.image || '' // For future use
   }
 
-  // Validation schema using Yup
   const validationSchema = Yup.object({
     title: Yup.string().required('Title is required'),
     content: Yup.string().required('Content is required'),
@@ -23,9 +21,24 @@ const FormPage = ({ post = {}, onSubmit }) => {
   const handleSubmit = (values, { setSubmitting, resetForm }) => {
     onSubmit(values)
     setSubmitting(false)
-
-    resetForm() // Reset form fields after successful submission
+    setIsFormDirty(false)
+    resetForm()
   }
+  const handleBeforeUnload = (event) => {
+    if (isFormDirty) {
+      event.preventDefault()
+      event.returnValue = ''
+    }
+  }
+  useEffect(() => {
+    // Add the event listener on component mounts
+    window.addEventListener('beforeunload', handleBeforeUnload)
+
+    // Cleanup the event listener when the component unmounts
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload)
+    }
+  }, [isFormDirty])
 
   return (
     <div className="mx-auto max-w-md rounded-lg bg-white p-6 shadow-lg">
@@ -36,9 +49,15 @@ const FormPage = ({ post = {}, onSubmit }) => {
         initialValues={initialValues}
         validationSchema={validationSchema}
         onSubmit={handleSubmit}
+        enableReinitialize
       >
-        {({ isSubmitting, setFieldValue }) => (
-          <Form>
+        {({ isSubmitting, setFieldValue, values }) => (
+          <Form
+            onChange={() => {
+              // Mark the form as dirty if any field is changed
+              setIsFormDirty(true)
+            }}
+          >
             <div className="mb-4">
               <label
                 htmlFor="title"
