@@ -1,12 +1,12 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
-import axios from 'axios'
+import api from '../../utils/axios.js'
 
 // Register user
 export const registerUser = createAsyncThunk(
   'auth/register',
   async (userData, { rejectWithValue }) => {
     try {
-      const response = await axios.post('users/register', userData)
+      const response = await api.post('users/register', userData)
       return response.data
     } catch (error) {
       return rejectWithValue(
@@ -21,9 +21,8 @@ export const loginUser = createAsyncThunk(
   'auth/login',
   async (credentials, { rejectWithValue }) => {
     try {
-      const response = await axios.post('users/login', credentials)
-      const { token, user } = response.data
-      localStorage.setItem('token', token) // Store token
+      const response = await api.post('users/login', credentials)
+      const { user } = response.data
       return { user }
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || 'Failed to login')
@@ -35,20 +34,8 @@ export const loginUser = createAsyncThunk(
 export const logoutUser = createAsyncThunk(
   'auth/logout',
   async (_, { rejectWithValue }) => {
-    const token = localStorage.getItem('token')
     try {
-      const response = await axios.post(
-        'users/logout',
-
-        {},
-
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        }
-      )
-      localStorage.removeItem('token') // Remove token
+      const response = await api.post('users/logout')
       return response.data
     } catch (error) {
       return rejectWithValue(
@@ -63,14 +50,7 @@ export const fetchUser = createAsyncThunk(
   'auth/fetchUser',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axios.get(
-        'http://localhost:5000/api/users/profile', // Endpoint to get user info
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`
-          }
-        }
-      )
+      const response = await api.get('http://localhost:5000/api/users/profile')
       return response.data
     } catch (error) {
       return rejectWithValue(

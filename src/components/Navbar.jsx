@@ -50,13 +50,17 @@ const Navbar = () => {
             <>
               <div className="hidden space-x-4 md:flex">
                 <button
-                  onClick={() => navigate('/create-post')}
+                  onClick={() => {
+                    navigate('/create-post')
+                  }}
                   className="text-indigo-200 hover:text-white"
                 >
                   Create Post
                 </button>
                 <button
-                  onClick={() => navigate('/my-posts')}
+                  onClick={() => {
+                    navigate('/my-posts')
+                  }}
                   className="text-indigo-200 hover:text-white"
                 >
                   My Posts
@@ -71,16 +75,18 @@ const Navbar = () => {
                   <FaBars className="h-6 w-6" />
                 </button>
                 <div
-                  className={`absolute right-0 top-8 w-48 rounded-md bg-white text-black shadow-lg ${isMenuOpen ? 'block' : 'hidden'}`}
+                  className={`absolute right-0 top-8 z-50 w-48 rounded-md bg-white text-black shadow-lg ${isMenuOpen ? 'block' : 'hidden'}`}
                 >
                   <Link
                     to="/create-post"
+                    onClick={() => setIsMenuOpen(!setIsMenuOpen)}
                     className="block p-4 text-indigo-600 hover:bg-gray-200"
                   >
                     Create Post
                   </Link>
                   <Link
                     to="/my-posts"
+                    onClick={() => setIsMenuOpen(!setIsMenuOpen)}
                     className="block p-4 text-indigo-600 hover:bg-gray-200"
                   >
                     My Posts
