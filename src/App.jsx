@@ -4,7 +4,8 @@ import {
   HomePage,
   LoginPage,
   SignupPage,
-  UpdatePost
+  UpdatePost,
+  NotFoundPage // Import the new NotFoundPage
 } from './pages'
 import Navbar from './components/Navbar'
 import { Routes, Route, Navigate } from 'react-router-dom'
@@ -13,6 +14,7 @@ import PostDetails from './components/PostDetails'
 import { fetchUser } from './features/users/userApi'
 import { useDispatch, useSelector } from 'react-redux'
 import axios from 'axios'
+
 const apiUrl = import.meta.env.VITE_API_URL
 
 function ProtectedRoute({ user, children }) {
@@ -21,7 +23,9 @@ function ProtectedRoute({ user, children }) {
   }
   return children
 }
+
 axios.defaults.baseURL = apiUrl || 'http://localhost:5000/api/'
+
 function App() {
   const dispatch = useDispatch()
   const { user } = useSelector((state) => state.users)
@@ -65,6 +69,9 @@ function App() {
             </ProtectedRoute>
           }
         />
+
+        {/* Fallback route for undefined paths */}
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </Layout>
   )
