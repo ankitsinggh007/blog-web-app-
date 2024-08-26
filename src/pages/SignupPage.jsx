@@ -31,7 +31,7 @@ const SignupPage = () => {
         }, 400)
       })
       .catch((error) => {
-        toast.error('Registration failed: ' + error.message)
+        toast.error('Registration failed: ' + error || error?.message)
       })
       .finally(() => {
         setSubmitting(false)
@@ -71,7 +71,7 @@ const SignupPage = () => {
                     className="mt-1 text-sm text-red-500"
                   />
                 </div>
-                <div className="sm:w-1/2">
+                <div className="mb-4 sm:mb-0 sm:w-1/2">
                   <label
                     htmlFor="username"
                     className="block text-sm font-medium text-gray-700"
